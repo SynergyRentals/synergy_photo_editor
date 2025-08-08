@@ -1,6 +1,5 @@
-
-gradio
-opencv-python-headless
-pillow
-numpy
-tqdm
+gradio==4.29.0
+opencv-python-headless==4.10.0.84
+pillow>=10.3.0,<11
+numpy>=1.26,<2
+tqdm>=4.66,<5

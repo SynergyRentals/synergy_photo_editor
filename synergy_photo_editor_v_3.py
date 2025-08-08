@@ -538,10 +538,14 @@ def install_shortcuts(target_dir: Path, python_cmd: str = "python") -> List[Path
     # Windows .bat
     bat = target_dir / "Launch Synergy UI.bat"
     bat.write_text(
-        "@echo off\n"
-        "cd /d %~dp0\n"
-        f"{python_cmd} {script} --ui\n"
-        "pause\n",
+        "@echo off
+"
+        "cd /d %~dp0
+"
+        f"{python_cmd} {script} --ui
+"
+        "pause
+",
         encoding='utf-8'
     )
     created.append(bat)
@@ -549,9 +553,12 @@ def install_shortcuts(target_dir: Path, python_cmd: str = "python") -> List[Path
     # macOS .command
     cmd = target_dir / "Launch Synergy UI.command"
     cmd.write_text(
-        "#!/bin/bash\n"
-        "cd \"$(dirname \"$0\")\"\n"
-        f"{python_cmd} {script} --ui\n",
+        "#!/bin/bash
+"
+        "cd \"$(dirname \"$0\")\"
+"
+        f"{python_cmd} {script} --ui
+",
         encoding='utf-8'
     )
     try:
@@ -717,7 +724,7 @@ def run_ui() -> bool:  # pragma: no cover
         )
         return Image.fromarray(_to_uint8(out))
 
-    def _batch(files, ota: str, infer_types: bool, room_type: str,
+    def _batch(files: List['gr.File'], ota: str, infer_types: bool, room_type: str,
                auto_leveling: bool, max_level_angle: float,
                auto_verticals: bool, max_vertical_angle: float,
                auto_crop: bool,
@@ -727,7 +734,12 @@ def run_ui() -> bool:  # pragma: no cover
         zbuf = io.BytesIO()
         zf = zipfile.ZipFile(zbuf, 'w', zipfile.ZIP_DEFLATED)
         for f in files or []:
-            path = Path(f.name)
+            # Accept plain file paths from Gradio (type="filepath") or legacy gr.File objects.
+            if isinstance(f, (str, Path)):
+                path = Path(f)
+            else:
+                # Fallback: f may be a gr.File-like object with a `.name` attribute.
+                path = Path(getattr(f, 'name', f))
             img = _read_image(path)
             rt = None
             if infer_types:
@@ -800,7 +812,7 @@ def run_ui() -> bool:  # pragma: no cover
                 btn_batch.click(_batch,
                                 inputs=[files, ota_b, infer_types, room_type_b, auto_leveling_b, max_level_angle_b, auto_verticals_b, max_vertical_angle_b, auto_crop_b, quality_b],
                                 outputs=[zip_out])
-        demo.launch(server_name="127.0.0.1", server_port=7861, share=False)
+        demo.launch()
     return True
 
 # ------------------------------
@@ -944,26 +956,33 @@ if __name__ == '__main__':
     if getattr(args, 'doctor', False):
         rc = 0
         try:
-            sys.stderr.write("Checking environment...\n")
-            sys.stderr.write(f"Python: {sys.version.split()[0]}\n")
+            sys.stderr.write("Checking environment...
+")
+            sys.stderr.write(f"Python: {sys.version.split()[0]}
+")
             import importlib
             for mod in ("cv2", "PIL", "numpy", "gradio"):
                 try:
                     importlib.import_module(mod)
-                    sys.stderr.write(f"ok  - {mod}\n")
+                    sys.stderr.write(f"ok  - {mod}
+")
                 except Exception as e:
-                    sys.stderr.write(f"warn- {mod}: {e}\n")
+                    sys.stderr.write(f"warn- {mod}: {e}
+")
             # write access test
             try:
                 Path('output').mkdir(exist_ok=True)
                 testfile = Path('output/.write_test')
                 testfile.write_text('ok')
                 testfile.unlink(missing_ok=True)
-                sys.stderr.write("ok  - write access\n")
+                sys.stderr.write("ok  - write access
+")
             except Exception as e:
-                sys.stderr.write(f"fail- write access: {e}\n"); rc = 1
+                sys.stderr.write(f"fail- write access: {e}
+"); rc = 1
         except Exception as e:
-            sys.stderr.write(f"doctor encountered an error: {e}\n"); rc = 1
+            sys.stderr.write(f"doctor encountered an error: {e}
+"); rc = 1
         sys.exit(rc)
 
     # Decide mode robustly
@@ -972,7 +991,8 @@ if __name__ == '__main__':
         if run_ui():
             sys.exit(0)
         # UI not available → friendly fallback without error code
-        sys.stderr.write("[INFO] UI unavailable. Showing CLI help and running selftests.\n")
+        sys.stderr.write("[INFO] UI unavailable. Showing CLI help and running selftests.
+")
         _first_run_help(parser)
         rc = run_selftest()
         sys.exit(rc)
@@ -981,17 +1001,22 @@ if __name__ == '__main__':
         # Opt-in fallback wants UI; if UI can't start, surface an actionable error
         if run_ui():
             sys.exit(0)
-        sys.stderr.write("error: UI fallback requested but Gradio is unavailable. Install with `pip install gradio` or provide --input for CLI.\n")
+        sys.stderr.write("error: UI fallback requested but Gradio is unavailable. Install with `pip install gradio` or provide --input for CLI.
+")
         sys.exit(2)
 
     if decision == 'error':
-        sys.stderr.write("error: --input is required in CLI mode (or pass --ui, or use --fallback-ui / SYNERGY_FALLBACK_UI=1)\n")
+        sys.stderr.write("error: --input is required in CLI mode (or pass --ui, or use --fallback-ui / SYNERGY_FALLBACK_UI=1)
+")
         sys.exit(2)
 
     # Utilities that don't require --input
     if getattr(args, 'install_shortcuts', False):
         made = install_shortcuts(Path('.'))
-        sys.stderr.write("Created launchers:\n" + "\n".join(f"  - {p}" for p in made) + "\n")
+        sys.stderr.write("Created launchers:
+" + "
+".join(f"  - {p}" for p in made) + "
+")
         sys.exit(0)
 
     # CLI
