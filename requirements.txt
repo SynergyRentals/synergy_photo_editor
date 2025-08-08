@@ -1,0 +1,6 @@
+
+gradio
+opencv-python-headless
+pillow
+numpy
+tqdm
