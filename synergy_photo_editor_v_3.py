@@ -537,28 +537,25 @@ def install_shortcuts(target_dir: Path, python_cmd: str = "python") -> List[Path
 
     # Windows .bat
     bat = target_dir / "Launch Synergy UI.bat"
+    # Write a Windows batch file to launch the UI.  Each line must be joined with
+    # an explicit newline to avoid unterminated string literal errors.
     bat.write_text(
-        "@echo off
-"
-        "cd /d %~dp0
-"
-        f"{python_cmd} {script} --ui
-"
-        "pause
-",
+        "@echo off\n"
+        "cd /d %~dp0\n"
+        f"{python_cmd} {script} --ui\n"
+        "pause\n",
         encoding='utf-8'
     )
     created.append(bat)
 
     # macOS .command
     cmd = target_dir / "Launch Synergy UI.command"
+    # Write a macOS command file to launch the UI.  Explicit newlines are used
+    # to ensure the string is properly terminated.
     cmd.write_text(
-        "#!/bin/bash
-"
-        "cd \"$(dirname \"$0\")\"
-"
-        f"{python_cmd} {script} --ui
-",
+        "#!/bin/bash\n"
+        "cd \"$(dirname \"$0\")\"\n"
+        f"{python_cmd} {script} --ui\n",
         encoding='utf-8'
     )
     try:
