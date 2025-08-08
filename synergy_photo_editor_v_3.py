@@ -953,33 +953,27 @@ if __name__ == '__main__':
     if getattr(args, 'doctor', False):
         rc = 0
         try:
-            sys.stderr.write("Checking environment...
-")
-            sys.stderr.write(f"Python: {sys.version.split()[0]}
-")
+            # Provide environment details on stderr with explicit newlines
+            sys.stderr.write("Checking environment...\n")
+            sys.stderr.write(f"Python: {sys.version.split()[0]}\n")
             import importlib
             for mod in ("cv2", "PIL", "numpy", "gradio"):
                 try:
                     importlib.import_module(mod)
-                    sys.stderr.write(f"ok  - {mod}
-")
+                    sys.stderr.write(f"ok  - {mod}\n")
                 except Exception as e:
-                    sys.stderr.write(f"warn- {mod}: {e}
-")
+                    sys.stderr.write(f"warn- {mod}: {e}\n")
             # write access test
             try:
                 Path('output').mkdir(exist_ok=True)
                 testfile = Path('output/.write_test')
                 testfile.write_text('ok')
                 testfile.unlink(missing_ok=True)
-                sys.stderr.write("ok  - write access
-")
+                sys.stderr.write("ok  - write access\n")
             except Exception as e:
-                sys.stderr.write(f"fail- write access: {e}
-"); rc = 1
+                sys.stderr.write(f"fail- write access: {e}\n"); rc = 1
         except Exception as e:
-            sys.stderr.write(f"doctor encountered an error: {e}
-"); rc = 1
+            sys.stderr.write(f"doctor encountered an error: {e}\n"); rc = 1
         sys.exit(rc)
 
     # Decide mode robustly
@@ -988,8 +982,7 @@ if __name__ == '__main__':
         if run_ui():
             sys.exit(0)
         # UI not available → friendly fallback without error code
-        sys.stderr.write("[INFO] UI unavailable. Showing CLI help and running selftests.
-")
+        sys.stderr.write("[INFO] UI unavailable. Showing CLI help and running selftests.\n")
         _first_run_help(parser)
         rc = run_selftest()
         sys.exit(rc)
@@ -998,22 +991,17 @@ if __name__ == '__main__':
         # Opt-in fallback wants UI; if UI can't start, surface an actionable error
         if run_ui():
             sys.exit(0)
-        sys.stderr.write("error: UI fallback requested but Gradio is unavailable. Install with `pip install gradio` or provide --input for CLI.
-")
+        sys.stderr.write("error: UI fallback requested but Gradio is unavailable. Install with `pip install gradio` or provide --input for CLI.\n")
         sys.exit(2)
 
     if decision == 'error':
-        sys.stderr.write("error: --input is required in CLI mode (or pass --ui, or use --fallback-ui / SYNERGY_FALLBACK_UI=1)
-")
+        sys.stderr.write("error: --input is required in CLI mode (or pass --ui, or use --fallback-ui / SYNERGY_FALLBACK_UI=1)\n")
         sys.exit(2)
 
     # Utilities that don't require --input
     if getattr(args, 'install_shortcuts', False):
         made = install_shortcuts(Path('.'))
-        sys.stderr.write("Created launchers:
-" + "
-".join(f"  - {p}" for p in made) + "
-")
+        sys.stderr.write("Created launchers:\n" + "\n".join(f"  - {p}" for p in made) + "\n")
         sys.exit(0)
 
     # CLI
