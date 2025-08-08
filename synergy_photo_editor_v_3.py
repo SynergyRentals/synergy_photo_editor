@@ -721,7 +721,7 @@ def run_ui() -> bool:  # pragma: no cover
         )
         return Image.fromarray(_to_uint8(out))
 
-    def _batch(files: List['gr.File'], ota: str, infer_types: bool, room_type: str,
+    def _batch(files, ota: str, infer_types: bool, room_type: str,
                auto_leveling: bool, max_level_angle: float,
                auto_verticals: bool, max_vertical_angle: float,
                auto_crop: bool,
